@@ -133,13 +133,13 @@ app.post("/api/login", async (req, res) => {
     }
 
 })
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
  const { v4: uuidv4 } = require('uuid');
 
 
  const storage = multer.diskStorage({
     destination: (req,file,cb)=>{
-        cb(null, 'public/images')
+        cb(null, 'images')
     },
     filename:(req,file,cb)=>{
         cb(null, file.originalname);
