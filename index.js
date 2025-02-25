@@ -410,6 +410,162 @@ app.get("/api/order", async(req,res)=>{
     }
 });
 
+app.get("/api/ordered", async(req,res)=>{
+    try{
+        const data = await database.collection('res_ordered').find({}).toArray();
+        res.send(data);
+    }catch(err){
+        console.log(err);
+    }
+});
+
+app.get("/api/ordered/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // Ensure the ID is in ObjectId format
+    const objectId = new Mongodb.ObjectId(id);
+console.log(objectId)
+    const order = await database.collection("res_ordered").findOne({ _id: objectId });
+
+    //console.log(order); // Log the result to debug
+
+    if (order) {
+      res.json(order);
+    } else {
+      res.status(404).json({ message: "order not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/ordered', async(req,res)=>{
+     const { orderItems } = req.body;
+     // Ensure orderItems is an array of objects
+    if (!Array.isArray(orderItems) || orderItems.length === 0) {
+      return res.status(400).json({ message: 'Invalid order data' });
+    }
+    try{
+       const result = await database.collection('res_ordered').insertOne({
+     orderItems,
+    });
+        res.status(200).json({ message: 'Order placed successfully', orderId: result });
+    }catch(err){
+        console.log(err);
+    }
+})
+
+
+app.put('/api/ordered/:id', async (req, res) => {
+    const id = req.params.id;
+    const updatedata = {
+        $set:req.body  // Only update the status field
+    };
+
+    try {
+        const result = await database.collection('res_ordered').updateOne(
+           { '_id' : new Mongodb.ObjectId(id) }, updatedata
+            
+        );
+
+
+        res.status(200).json({ message: "Order updated" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+app.delete('/api/ordered/:index',async(req,res)=>{
+    try {
+        const id = req.params.index;  // Get the id from the URL parameter
+        //console.log(id)
+        // Find and delete the item by its _id in the collection
+        const result = await database.collection('res_ordered').deleteOne(
+          { '_id': new Mongodb.ObjectId(id) }
+        );
+       // console.log(result)
+        
+        if (result.deletedCount === 1) {
+          res.status(200).json({ message: "Item deleted successfully" });
+        } else {
+          res.status(404).json({ message: "Item not found" });
+        }
+      } catch (err) {
+        res.status(400).json({ message: err.message });
+      }
+})
+
+
+app.get("/api/invoice", async (req,res) => {
+     try{
+        const data = await database.collection('invoices').find({}).toArray();
+        res.send(data);
+    }catch(err){
+        console.log(err);
+    }
+})
+
+app.post("/api/invoice", async (req, res) => {
+  try {
+    const { tableNo, orders, totalAmount,tokenNo } = req.body;
+    
+    if (!tableNo || !orders || orders.length === 0) {
+      return res.status(400).json({ message: "Invalid invoice data" });
+    }
+
+    const invoice = {
+      tableNo,
+      tokenNo,
+      orders,
+      totalAmount,
+      createdAt: new Date()
+    };
+
+    const result = await database.collection("invoices").insertOne(invoice);
+
+    res.status(201).json({ message: "Invoice saved successfully", invoiceId: result.insertedId });
+  } catch (error) {
+    console.error("Error saving invoice:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/invoice/:tableNo", async (req, res) => {
+  try {
+    const tableNo = isNaN(req.params.tableNo) ? req.params.tableNo : parseInt(req.params.tableNo, 10);
+    const invoice = await database.collection("invoices").findOne({ tableNo });
+
+    if (invoice) {
+      res.json(invoice);
+    } else {
+      res.status(404).json({ message: "Invoice not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/api/invoice/:tableNo", async (req, res) => {
+  try {
+    const tableNo = isNaN(req.params.tableNo) ? req.params.tableNo : parseInt(req.params.tableNo, 10);
+    const updateData = req.body;
+
+    const result = await database.collection("invoices").updateOne({ tableNo }, { $set: updateData });
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    res.json({ message: "Invoice updated successfully", result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 const cheerio = require('cheerio');
 const axios = require('axios');
 
