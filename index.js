@@ -138,16 +138,16 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
  const { v4: uuidv4 } = require('uuid');
 
 
-//  const storage = multer.diskStorage({
-//     destination: (req,file,cb)=>{
-//         cb(null, 'images')
-//     },
-//     filename:(req,file,cb)=>{
-//         cb(null, file.originalname);
-//     }
-// });
+ const storage = multer.memoryStorage({
+    destination: (req,file,cb)=>{
+        cb(null, 'images')
+    },
+    filename:(req,file,cb)=>{
+        cb(null, file.originalname);
+    }
+});
 
-const storage = multer.memoryStorage();
+//const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
