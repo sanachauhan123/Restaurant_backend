@@ -10,6 +10,7 @@ app.use(cors());
 const multer = require('multer');
 
 app.set("view engine", "ejs");
+app.use(express.json());
 
 
 //console.log(app);
