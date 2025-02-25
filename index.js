@@ -159,7 +159,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 const storage = multer.memoryStorage(); // Keep images in memory
-const upload = multer({ storage });
+const upload = multer({ storage, fileFilter });
 
 
 
