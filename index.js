@@ -269,7 +269,8 @@ app.get('/api/categories', async(req,res)=>{
 app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     // console.log(req.file.destination)
     const cat_name = req.body.cat_name;
-    const file = req.file.buffer.toString('base64');
+    const ext = path.extname(req.file.originalname); // Get file extension
+    const file = `${uuidv4()}${ext}`; 
      //console.log(file)
 
     const newItem = {
