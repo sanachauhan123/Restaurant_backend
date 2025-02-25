@@ -138,14 +138,14 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
  const { v4: uuidv4 } = require('uuid');
 
 
- const storage = multer.memoryStorage({
-    destination: (req,file,cb)=>{
-        cb(null, 'images')
-    },
-    filename:(req,file,cb)=>{
-        cb(null, file.originalname);
-    }
-});
+//  const storage = multer.memoryStorage({
+//     destination: (req,file,cb)=>{
+//         cb(null, 'images')
+//     },
+//     filename:(req,file,cb)=>{
+//         cb(null, file.originalname);
+//     }
+// });
 
 //const storage = multer.memoryStorage();
 
@@ -158,7 +158,8 @@ const fileFilter = (req, file, cb) => {
     )
 }
 
- const upload = multer({storage, fileFilter});
+const storage = multer.memoryStorage(); // Keep images in memory
+const upload = multer({ storage });
 
 
 
@@ -268,7 +269,7 @@ app.get('/api/categories', async(req,res)=>{
 app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     // console.log(req.file.destination)
     const cat_name = req.body.cat_name;
-     const file = req.file?.filename;
+    const file = req.file.buffer.toString('base64');
      //console.log(file)
 
     const newItem = {
