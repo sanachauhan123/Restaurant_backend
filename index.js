@@ -138,14 +138,14 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
  const { v4: uuidv4 } = require('uuid');
 
 
- const storage = multer.diskStorage({
-    destination: (req,file,cb)=>{
-        cb(null, 'images')
-    },
-    filename:(req,file,cb)=>{
-        cb(null, file.originalname);
-    }
-})
+//  const storage = multer.diskStorage({
+//     destination: (req,file,cb)=>{
+//         cb(null, 'images')
+//     },
+//     filename:(req,file,cb)=>{
+//         cb(null, file.originalname);
+//     }
+// })
 
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
@@ -156,7 +156,27 @@ const fileFilter = (req, file, cb) => {
     )
 }
 
-const upload = multer({storage, fileFilter})
+// const upload = multer({storage, fileFilter});
+
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+    cloud_name: "dgwprpsoa",
+    api_key: "986732636491141",
+    api_secret: "GRXnWo7QV4OB3Z6la9_vEEPLu9k",
+  });
+
+  const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: "menu_images", // Cloudinary folder name
+      format: async (req, file) => "png", // Convert all images to PNG format
+      public_id: (req, file) => uuidv4(), // Unique filename
+    },
+  });
+
+  const upload = multer({ storage });
 
 
 app.get('/api/menu', async(req,res)=>{
@@ -182,14 +202,14 @@ app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
     const price = req.body.price;
     const Categories = req.body.Categories;
-    const file = req.file?.filename;
+    const fileUrl = req.file.path;
     const priceWithGST = req.body.priceWithGST;
 
     const newItem = {
         cat_name,
         price,
         Categories,
-         file,
+        fileUrl,
          priceWithGST,
     }
 
