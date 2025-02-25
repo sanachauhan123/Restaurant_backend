@@ -185,14 +185,14 @@ app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
     const price = req.body.price;
     const Categories = req.body.Categories;
-    const fileUrl = req.file ? req.file.originalname : null; // Handle undefined file
+    const file = req.file ? req.file.originalname : null; // Handle undefined file
     const priceWithGST = req.body.priceWithGST;
 
     const newItem = {
         cat_name,
         price,
         Categories,
-        fileUrl,
+        file,
          priceWithGST,
     }
 
