@@ -138,16 +138,16 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
  const { v4: uuidv4 } = require('uuid');
 
 
-//  const storage = multer.memoryStorage({
-//     destination: (req,file,cb)=>{
-//         cb(null, 'images')
-//     },
-//     filename:(req,file,cb)=>{
-//         cb(null, file.originalname);
-//     }
-// });
+ const storage = multer.memoryStorage({
+    destination: (req,file,cb)=>{
+        cb(null, 'images')
+    },
+    filename:(req,file,cb)=>{
+        cb(null, file.originalname);
+    }
+});
 
-const storage = multer.memoryStorage();
+//const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
@@ -268,7 +268,7 @@ app.get('/api/categories', async(req,res)=>{
 app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     // console.log(req.file.destination)
     const cat_name = req.body.cat_name;
-    const file = req.file ? req.file.buffer.toString('base64') : null;
+     const file = req.file?.filename;
      //console.log(file)
 
     const newItem = {
