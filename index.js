@@ -159,7 +159,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 const storage = multer.memoryStorage(); // Keep images in memory
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage: storage });
 
 
 
@@ -270,13 +270,12 @@ app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     // console.log(req.file.destination)
     const cat_name = req.body.cat_name;
     const ext = path.extname(req.file.originalname); // Get file extension
-    const file = req.file.originalname;
-     //console.log(file)
+    const base64File = req.file.buffer.toString("base64"); // Convert to Base64
 
     const newItem = {
         cat_name,
-         file
-    }
+        file: `data:image/${ext.replace(".", "")};base64,${base64File}`, // Store Base64 with MIME type
+    };
 
     database.collection('res_cat').insertOne(newItem);
    // console.log('inserted')
