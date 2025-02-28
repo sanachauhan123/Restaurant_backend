@@ -159,7 +159,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 const storage = multer.memoryStorage(); // Keep images in memory
-const upload = multer({ storage: storage });
+const upload = multer({ storage : storage });
 
 
 
@@ -170,7 +170,7 @@ app.get('/api/menu', async(req,res)=>{
         
         const updatedMenuItems = result.map(item => ({
         ...item,
-        file: `/images/${item.file}` // Add the '/images/' prefix
+        file: `${item.file}` // Add the '/images/' prefix
     }));
 res.send({status:"ok", data:updatedMenuItems})
     
@@ -186,14 +186,15 @@ app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
     const price = req.body.price;
     const Categories = req.body.Categories;
-    const file = req.file ? req.file.buffer.toString('base64') : null; // Handle undefined file
+    const ext = path.extname(req.file.originalname); // Get file extension
+    const base64File = req.file.buffer.toString("base64");
     const priceWithGST = req.body.priceWithGST;
 
     const newItem = {
         cat_name,
         price,
         Categories,
-        file,
+        file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
          priceWithGST,
     }
 
@@ -207,11 +208,19 @@ app.put("/api/menu/:editId", upload.single("file"), async (req, res) => {
     try {
         const id = req.params.editId;
         const updateFields = { ...req.body };
-
-        // If a file was uploaded, add it to updateFields
         if (req.file) {
-            updateFields.file = req.file?.filename; // Store the filename in DB
+          console.log("Processing new file...");
+          const ext = path.extname(req.file.originalname).toLowerCase().replace(".", "");
+          const base64File = req.file.buffer.toString("base64");
+          updateFields.file = `data:image/${ext};base64,${base64File}`;
+        } else if (req.body.existingFile) {
+          console.log("Keeping existing file:", req.body.existingFile);
+          updateFields.file = req.body.existingFile;
+        } else {
+          console.log("No file provided, keeping current file.");
         }
+    
+        delete updateFields.existingFile; // Remove unnecessary field
 
         const updatedata = { $set: updateFields };
 
@@ -270,12 +279,13 @@ app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     // console.log(req.file.destination)
     const cat_name = req.body.cat_name;
     const ext = path.extname(req.file.originalname); // Get file extension
-    const base64File = req.file.buffer.toString("base64"); // Convert to Base64
+    const base64File = req.file.buffer.toString("base64");
+     //console.log(file)
 
     const newItem = {
         cat_name,
-        file: `data:image/${ext.replace(".", "")};base64,${base64File}`, // Store Base64 with MIME type
-    };
+        file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
+    }
 
     database.collection('res_cat').insertOne(newItem);
    // console.log('inserted')
@@ -286,14 +296,25 @@ app.put("/api/categories/:editId", upload.single("file"), async (req, res) => {
     try {
         const id = req.params.editId;
         const updateFields = { ...req.body };
-
-        // If a file was uploaded, add it to updateFields
+       // console.log(req.file)
         if (req.file) {
-            updateFields.file = req.file?.filename; // Store the filename in DB
+          //console.log("Processing new file...");
+          const ext = path.extname(req.file.originalname).toLowerCase().replace(".", "");
+          const base64File = req.file.buffer.toString("base64");
+          updateFields.file = `data:image/${ext};base64,${base64File}`;
+        } else if (req.body.existingFile) {
+          console.log("Keeping existing file:", req.body.existingFile);
+          updateFields.file = req.body.existingFile;
+        } else {
+          console.log("No file provided, keeping current file.");
         }
-
+    
+        delete updateFields.existingFile; // Remove unnecessary field
+    
+       // console.log("Final Update Fields:", updateFields); // Debugging log
+    
         const updatedata = { $set: updateFields };
-
+        //console.log(updatedata)
         // Perform the update operation
         const result = await database.collection("res_cat").updateOne(
             { _id: new Mongodb.ObjectId(id) },
