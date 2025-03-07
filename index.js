@@ -179,8 +179,13 @@ res.send({status:"ok", data:updatedMenuItems})
         console.log(err);
     }
 })
+const uploadsDir = path.join(__dirname, "uploads");
 
-
+// Ensure the 'uploads' directory exists
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadsDir));
 
 app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
@@ -189,12 +194,19 @@ app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const ext = path.extname(req.file.originalname); // Get file extension
     const base64File = req.file.buffer.toString("base64");
     const priceWithGST = req.body.priceWithGST;
+    const shortForm = { ext, base64: base64File };
+    const filename = `image_${Date.now()}.${ext}`;
+const filePath = path.join(uploadsDir, filename);
+const savedInfo = { filename, ext }; // Store only filename
+
+// Save file
+fs.writeFileSync(filePath, req.file.buffer);
 
     const newItem = {
         cat_name,
         price,
         Categories,
-        file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
+        file: `/uploads/${savedInfo.filename}`,
          priceWithGST,
     }
 
@@ -298,7 +310,7 @@ app.put("/api/categories/:editId", upload.single("file"), async (req, res) => {
         const updateFields = { ...req.body };
        // console.log(req.file)
         if (req.file) {
-          //console.log("Processing new file...");
+          console.log("Processing new file...");
           const ext = path.extname(req.file.originalname).toLowerCase().replace(".", "");
           const base64File = req.file.buffer.toString("base64");
           updateFields.file = `data:image/${ext};base64,${base64File}`;
@@ -471,7 +483,7 @@ app.post('/api/ordered', async(req,res)=>{
      const { orderItems } = req.body;
      // Ensure orderItems is an array of objects
     if (!Array.isArray(orderItems) || orderItems.length === 0) {
-      return res.status(400).json({ message: 'Invalid order data' });
+      return res.status(404).json({ message: 'Invalid order data' });
     }
     try{
        const result = await database.collection('res_ordered').insertOne({
