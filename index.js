@@ -191,24 +191,21 @@ app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
     const price = req.body.price;
     const Categories = req.body.Categories;
-    const ext = path.extname(req.file.originalname); // Get file extension
-    const base64File = req.file.buffer.toString("base64");
+    const ext = path.extname(req.file.originalname).slice(1); // Remove dot from extension
+    const base64File = req.file.buffer.toString("base64")// Only first 10 characters
     const priceWithGST = req.body.priceWithGST;
 //     const filename = `image_${Date.now()}.${ext}`;
 // const filePath = path.join(uploadsDir, filename);
 // const savedInfo = { filename, ext }; // Store only filename
 
-// Save file
-
-
     const newItem = {
         cat_name,
         price,
         Categories,
-        file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
+        file : `data:image/${ext};base64,${base64File}`,
          priceWithGST,
     }
-
+console.log(newItem)
     database.collection('res_menu').insertOne(newItem);
    // console.log('inserted')
      res.status(200).json({ message: "data successfully inserted",newItem:{newItem}})
