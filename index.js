@@ -187,60 +187,33 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use("/uploads", express.static(uploadsDir));
 
-app.post('/api/menu', upload.single('file'), async (req, res, next) => {
-  try {
-      if (!req.file) {
-          return res.status(400).json({ error: "No file uploaded" });
-      }
+app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
+    const cat_name = req.body.cat_name;
+    const price = req.body.price;
+    const Categories = req.body.Categories;
+    const ext = path.extname(req.file.originalname); // Get file extension
+    const base64File = req.file.buffer.toString("base64");
+    const priceWithGST = req.body.priceWithGST;
+//     const filename = `image_${Date.now()}.${ext}`;
+// const filePath = path.join(uploadsDir, filename);
+// const savedInfo = { filename, ext }; // Store only filename
 
-      const { cat_name, price, Categories, priceWithGST } = req.body;
+// Save file
 
-      // Ensure uploads directory exists
-      const uploadsDir = path.join(__dirname, "uploads");
-      if (!fs.existsSync(uploadsDir)) {
-          fs.mkdirSync(uploadsDir, { recursive: true });
-      }
 
-      // Get file extension (without the dot)
-      const ext = path.extname(req.file.originalname).replace(".", ""); // Remove leading dot
+    const newItem = {
+        cat_name,
+        price,
+        Categories,
+        file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
+         priceWithGST,
+    }
 
-      // Convert file to base64 (not necessary for saving but you requested it)
-      const base64File = req.file.buffer.toString("base64");
-      const shortForm = { ext, base64: base64File }; // Short form
-
-      // Generate unique filename
-      const filename = `image_${Date.now()}.${ext}`;
-      const filePath = path.join(uploadsDir, filename);
-
-      // Save file to local storage
-      fs.writeFileSync(filePath, req.file.buffer);
-
-      // Construct database entry
-      const newItem = {
-          cat_name,
-          price,
-          Categories,
-          file: `/uploads/${filename}`, // Store relative path
-          priceWithGST
-      };
-
-      // Insert into MongoDB (assuming `database` is your MongoDB instance)
-      const result = await database.collection('res_menu').insertOne(newItem);
-
-      console.log("Inserted:", result.insertedId);
-
-      // Send success response
-      res.status(200).json({ 
-          message: "Data successfully inserted", 
-          newItem 
-      });
-
-  } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({ error: "Internal server error" });
-  }
+    database.collection('res_menu').insertOne(newItem);
+   // console.log('inserted')
+     res.status(200).json({ message: "data successfully inserted",newItem:{newItem}})
+    
 });
-
 
 app.put("/api/menu/:editId", upload.single("file"), async (req, res) => {
     try {
