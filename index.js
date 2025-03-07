@@ -179,13 +179,8 @@ res.send({status:"ok", data:updatedMenuItems})
         console.log(err);
     }
 })
-const uploadsDir = path.join(__dirname, "uploads");
 
-// Ensure the 'uploads' directory exists
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-app.use("/uploads", express.static(uploadsDir));
+
 
 app.post('/api/menu',upload.single('file'), async(req, res, next) =>{
     const cat_name = req.body.cat_name;
