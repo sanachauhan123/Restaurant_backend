@@ -537,29 +537,28 @@ app.delete("/api/ordered/table/:addtable", async (req, res) => {
   }
 });
 
-app.post("/api/ordered/delete", async (req, res) => {
-  const { tableNo, title } = req.body;
-
+app.delete("/api/ordered/table/:tableNo/title/:title", async (req, res) => {
+  const { tableNo, title } = req.params;
   try {
-    const order = await database.collection('res_ordered').findOne({ tableNo });
+    const result = await database.collection("res_ordered").updateOne(
+      { tableNo },
+      { $pull: { orderItems: { title } } } // Remove the matching item from orderItems
+    );
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: "No matching order found" });
     }
 
-    // Filter out the order item
-    order.orderItems = order.orderItems.filter((item) => item.title !== title);
-
-    // If no items left, delete the order
-    if (order.orderItems.length === 0) {
-      await database.collection('res_ordered').deleteOne({ tableNo });
-      return res.json({ message: "Order deleted" });
+    // Check if orderItems is now empty and delete the order
+    const updatedOrder = await database.collection("res_ordered").findOne({ tableNo });
+    if (updatedOrder && updatedOrder.orderItems.length === 0) {
+      await database.collection("res_ordered").deleteOne({ tableNo });
+      return res.json({ message: `All orders for table ${tableNo} deleted as no items left.` });
     }
 
-    await order.save();
-    res.json({ message: "Item removed from order", order });
+    res.json({ message: `Order with title '${title}' deleted for table ${tableNo}` });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Failed to delete order item" });
   }
 });
 
