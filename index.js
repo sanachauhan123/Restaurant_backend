@@ -525,7 +525,40 @@ app.delete('/api/ordered/:index',async(req,res)=>{
       } catch (err) {
         res.status(400).json({ message: err.message });
       }
-})
+});
+
+app.delete("/api/ordered", async (req, res) => {
+  try {
+      const { title, tableNo } = req.body;
+
+      if (!title || !tableNo) {
+          return res.status(400).json({ message: "Title and table number are required" });
+      }
+
+      // Find the order by tableNo
+      const order = await database.collection('res_ordered').findOne({ tableNo });
+
+      if (!order) {
+          return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Filter out the item to be removed
+      order.orderItems = order.orderItems.filter(item => item.title !== title);
+
+      // If all items are deleted, remove the order document
+      if (order.orderItems.length === 0) {
+          await database.collection('res_ordered').deleteOne({ _id: order._id });
+          return res.json({ message: "Order deleted as it had no items left" });
+      }
+
+      // Save the updated order
+      await order.save();
+      res.json({ message: "Item deleted successfully", updatedOrder: order });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 app.get("/api/invoice", async (req,res) => {
