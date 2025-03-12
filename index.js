@@ -537,6 +537,27 @@ app.delete("/api/ordered/table/:addtable", async (req, res) => {
   }
 });
 
+app.delete("/api/ordered/item", async (req, res) => {
+  const { tableNo, title } = req.body;
+
+  try {
+    const updatedOrder = await database.collection('res_ordered').findOneAndUpdate(
+      { tableNo }, // Find the order document by tableNo
+      { $pull: { orderItems: { title } } }, // Remove the orderItem matching the title
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found for this table" });
+    }
+
+    res.json({ message: `Item "${title}" deleted from table ${tableNo}`, updatedOrder });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete order item" });
+  }
+});
+
+
 
 app.get("/api/invoice", async (req,res) => {
      try{
