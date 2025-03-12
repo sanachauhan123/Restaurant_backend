@@ -541,9 +541,14 @@ app.delete("/api/ordered/item", async (req, res) => {
   const { tableNo, title } = req.body;
 
   try {
-    const updatedOrder = await database.collection('res_ordered').findOneAndUpdate(
-      { tableNo }, // Find the order document by tableNo
-      { $pull: { orderItems: { title } } }, // Remove the orderItem matching the title
+    if (!tableNo || !title) {
+      return res.status(400).json({ error: "tableNo and title are required" });
+    }
+
+    // Find the order document by tableNo
+    const updatedOrder = await Order.findOneAndUpdate(
+      { tableNo: tableNo }, // Ensure tableNo is treated as a string
+      { $pull: { orderItems: { title: title } } }, // Remove the specific orderItem
       { new: true }
     );
 
@@ -553,6 +558,7 @@ app.delete("/api/ordered/item", async (req, res) => {
 
     res.json({ message: `Item "${title}" deleted from table ${tableNo}`, updatedOrder });
   } catch (error) {
+    console.error("Error deleting order item:", error);
     res.status(500).json({ error: "Failed to delete order item" });
   }
 });
