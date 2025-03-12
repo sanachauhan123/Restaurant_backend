@@ -537,7 +537,7 @@ app.delete("/api/ordered/table/:addtable", async (req, res) => {
   }
 });
 
-app.post("/api/orders/delete", async (req, res) => {
+app.post("/api/ordered/delete", async (req, res) => {
   const { tableNo, title } = req.body;
 
   try {
