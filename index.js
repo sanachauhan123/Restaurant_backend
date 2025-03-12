@@ -527,7 +527,7 @@ app.delete('/api/ordered/:index',async(req,res)=>{
       }
 });
 
-app.delete("/api/ordered/:tableNo", async (req, res) => {
+app.delete("/api/ordered/table/:tableNo", async (req, res) => {
   const { tableNo } = req.params;
 
   try {
