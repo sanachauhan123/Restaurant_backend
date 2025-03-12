@@ -527,11 +527,11 @@ app.delete('/api/ordered/:index',async(req,res)=>{
       }
 });
 
-app.delete("/api/ordered/table/:tableNo", async (req, res) => {
-  const { tableNo } = req.params;
+app.delete("/api/ordered/table/:addtable", async (req, res) => {
+  const { addtable } = req.params;
   try {
-    const result = await Order.deleteMany({ tableNo }); // Delete all orders for this table
-    res.json({ message: `Orders for table ${tableNo} deleted`, deletedCount: result.deletedCount });
+    const result = await Order.deleteMany({ addtable }); // Delete all orders for this table
+    res.json({ message: `Orders for table ${addtable} deleted`, deletedCount: result.deletedCount });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete orders" });
   }
