@@ -527,15 +527,22 @@ app.delete('/api/ordered/:index',async(req,res)=>{
       }
 });
 
-app.delete("/api/ordered/table/:addtable", async (req, res) => {
-  const { addtable } = req.params;
+app.delete("/api/ordered/:tableNo", async (req, res) => {
+  const { tableNo } = req.params;
+
   try {
-    const result = await database.collection('res_ordered').deleteMany({ addtable }); // Delete all orders for this table
-    res.json({ message: `Orders for table ${addtable} deleted`, deletedCount: result.deletedCount });
+    const result = await database.collection("res_ordered").deleteOne({ tableNo: tableNo }); 
+    if (result.deletedCount > 0) {
+      res.json({ message: `Orders for table ${tableNo} deleted`, deletedCount: result.deletedCount });
+    } else {
+      res.status(404).json({ error: `No orders found for table ${tableNo}` });
+    }
   } catch (error) {
+    console.error("Error deleting orders:", error);
     res.status(500).json({ error: "Failed to delete orders" });
   }
 });
+
 
 
 app.get("/api/invoice", async (req,res) => {
