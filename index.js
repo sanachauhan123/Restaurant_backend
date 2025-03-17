@@ -12,8 +12,8 @@ const multer = require('multer');
 
 app.set("view engine", "ejs");
 app.use(express.json());
-const PORT = process.env.PORT || 5000; // Use PORT from .env or default to 5000
-const MONGO_URI = process.env.MONGO_URI; // Get MONGO_URI from .env
+const PORT = process.env.PORT || 5000; 
+const MONGO_URI = process.env.MONGO_URI; 
 
 //console.log(app);
 var Mongodb = require('mongodb')
