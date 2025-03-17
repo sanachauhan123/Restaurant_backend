@@ -1,5 +1,6 @@
+require('dotenv').config();
 const express = require('express');
- const app = express();
+const app = express();
 const bp = require('body-parser');
 app.use(bp.json());
 
@@ -11,14 +12,15 @@ const multer = require('multer');
 
 app.set("view engine", "ejs");
 app.use(express.json());
-
+const PORT = process.env.PORT || 5000; // Use PORT from .env or default to 5000
+const MONGO_URI = process.env.MONGO_URI; // Get MONGO_URI from .env
 
 //console.log(app);
 var Mongodb = require('mongodb')
 
 const MongoClient = require('mongodb').MongoClient
 
-const uri = "mongodb+srv://restaurant_user:Sanna19396@cluster0.sr3zl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = MONGO_URI;
 //stridedgetech:SOh3TbY%24x8ypJPxmt1%26OfL@83.223.113.92:27017/?authSource=mydb&authMechanism=SCRAM-SHA-1
 // admin// stridedgetech
 //SOh3TbY$x8ypJPxmt1&OfL
@@ -629,8 +631,8 @@ app.get('/gst-rates', async (req, res) => {
     }
   });
   
-app.listen(5000, () => {
-    console.log(`Server running at 5000`);
+app.listen(PORT, () => {
+    console.log(`Server running at ${PORT}`);
   });
 
 
