@@ -13,14 +13,14 @@ const multer = require('multer');
 app.set("view engine", "ejs");
 app.use(express.json());
 const PORT = process.env.PORT || 5000; 
-const MONGO_URI = process.env.MONGO_URI; 
+const MONGODB_URI = process.env.MONGO_URI; 
 
 //console.log(app);
 var Mongodb = require('mongodb')
 
 const MongoClient = require('mongodb').MongoClient
 
-const uri = MONGO_URI;
+const uri = MONGODB_URI;
 //stridedgetech:SOh3TbY%24x8ypJPxmt1%26OfL@83.223.113.92:27017/?authSource=mydb&authMechanism=SCRAM-SHA-1
 // admin// stridedgetech
 //SOh3TbY$x8ypJPxmt1&OfL
