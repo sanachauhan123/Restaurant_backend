@@ -61,6 +61,13 @@ const fs = require('fs');
 // const res_bill = require('../client/src/model/Bill');
 
  const database = client.db("mydb");
+
+ const API_URL = process.env.API_URL;
+
+app.get("/get-env", (req, res) => {
+  res.json({ API_URL });
+});
+
    
 
 app.get('/api/signup', async(req,res)=>{
