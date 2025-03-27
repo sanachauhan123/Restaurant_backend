@@ -310,6 +310,8 @@ app.put("/api/categories/:editId", upload.single("file"), async (req, res) => {
     try {
         const id = req.params.editId;
         const updateFields = { ...req.body };
+        updateFields.icon_name = req.body.icon_name;
+        
        // console.log(req.file)
         if (req.file) {
           console.log("Processing new file...");
