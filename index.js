@@ -292,11 +292,13 @@ app.post('/api/categories',upload.single('file'),async(req, res, next) =>{
     const cat_name = req.body.cat_name;
     const ext = path.extname(req.file.originalname); // Get file extension
     const base64File = req.file.buffer.toString("base64");
+    const icon_name = req.body.icon_name;
      //console.log(file)
 
     const newItem = {
         cat_name,
         file: `data:image/${ext.replace(".", "")};base64,${base64File}`,
+        icon_name
     }
 
     database.collection('res_cat').insertOne(newItem);
